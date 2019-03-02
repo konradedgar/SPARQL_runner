@@ -18,6 +18,7 @@ mechanism for all of the available files.
 ###########
 import os
 import argparse
+from tabulate import tabulate
 
 
 #############
@@ -36,12 +37,36 @@ def check_directory(input_dir):
         os._exit(1)
 
 
-def list_query_files(input_dir):
+def list_query_files(input_dir, input_extensions):
     """List query files from the provided directory."""
     all_files = os.listdir(input_dir)
     # Filter to match files of desired extensions only
-    query_files = filter(lambda x: x[-4:] in '.txt', all_files)
+    query_files = filter(lambda x: os.path.splitext(x)[1] in input_extensions,
+                         all_files)
+    query_files = list(query_files)
+    # Get full paths
+    query_files = map(lambda x: os.path.join(input_dir, x), query_files)
     return query_files
+
+
+def print_queries(query_files):
+    """Print presentable table with list of queries and corresponding menu
+    options."""
+    print(tabulate({"File": map(lambda x: os.path.basename(x), query_files),
+                    "Preview": map(lambda x: read_file(x, shorten=True),
+                                   query_files)},
+                   headers="keys", showindex="always",
+                   tablefmt="psql"))
+
+
+def read_file(input_file, shorten=False):
+    """Read query file and optionally return preview line"""
+    with open(input_file, 'r') as query_file:
+        data = query_file.read().strip()
+    # Optionaly produce shortened version
+    if shorten:
+        data = data[:30] + '...'
+    return data
 
 
 ####################
@@ -52,6 +77,8 @@ def run(args):
     input_dir = args.input_dir
     input_extensions = args.input_extensions
     check_directory(input_dir)
+    query_files = list_query_files(input_dir, input_extensions)
+    print_queries(query_files)
 
 
 def main():
