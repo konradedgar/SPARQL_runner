@@ -6,3 +6,4 @@ directory.
 
 .. image:: https://asciinema.org/a/0SXxPmxBgoTAtDQGEWDLJnFFm.svg
     :alt: Demo
+    :target: https://asciinema.org/a/0SXxPmxBgoTAtDQGEWDLJnFFm
