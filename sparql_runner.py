@@ -63,7 +63,7 @@ def read_file(input_file, shorten=False):
     """Read query file and optionally return preview line"""
     with open(input_file, 'r') as query_file:
         data = query_file.read().strip()
-    # Optionaly produce shortened version
+    # Optionally produce shortened version
     if shorten:
         data = data[:30] + '...'
     return data
