@@ -4,7 +4,7 @@
 #
 # Copyright © 2019 Konrad <konrad.zdeb@me.com>
 #
-# Distributed under terms of the MIT license.
+# Distributed under terms of the GPL 3-0 license.
 
 """
 This simple script provides a mechanism to run SPARQL files. The files are
