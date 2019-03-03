@@ -18,10 +18,10 @@ mechanism for all of the available files.
 ###########
 import os
 import argparse
+import json
 from tabulate import tabulate
-from SPARQLWrapper import SPARQLWrapper
-from SPARQLWrapper import SPARQLExceptions
-
+from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
+from pprint import pprint
 
 #############
 # Functions #
@@ -78,11 +78,12 @@ def run_selected_query(query_num, query_files, sparql_url):
     query_text = read_file(input_file=query_file)
     sparql = SPARQLWrapper(sparql_url)
     sparql.setQuery(query_text)
-    sparql.setReturnFormat('csv')
+    sparql.setReturnFormat(JSON)
     try:
         results = sparql.query().convert()
-        print(results)
-        return results
+        data_json = json.dumps(results)
+        data = json.loads(data_json)
+        pprint(data)
     except SPARQLExceptions.QueryBadFormed:
         print("Wrong SPARQL query")
 
@@ -123,7 +124,7 @@ def main():
                         default=['.sql', '.txt', '.sparql'])
     parser.add_argument('-e', '--end-point', type=str, required=False,
                         help='URL for SPARQL endpoint.', dest='sparql_url',
-                        default='http://statistics.gov.scot/sparql.csv')
+                        default='http://statistics.gov.scot/sparql.json')
     parser.set_defaults(func=run)
     args = parser.parse_args()
     args.func(args)
