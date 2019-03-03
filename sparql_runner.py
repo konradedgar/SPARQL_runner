@@ -19,6 +19,8 @@ mechanism for all of the available files.
 import os
 import argparse
 from tabulate import tabulate
+from SPARQLWrapper import SPARQLWrapper
+from SPARQLWrapper import SPARQLExceptions
 
 
 #############
@@ -45,7 +47,7 @@ def list_query_files(input_dir, input_extensions):
                          all_files)
     query_files = list(query_files)
     # Get full paths
-    query_files = map(lambda x: os.path.join(input_dir, x), query_files)
+    query_files = list(map(lambda x: os.path.join(input_dir, x), query_files))
     return query_files
 
 
@@ -69,6 +71,22 @@ def read_file(input_file, shorten=False):
     return data
 
 
+def run_selected_query(query_num, query_files, sparql_url):
+    """Run selected query."""
+    print("Running query " + query_num + ".")
+    query_file = query_files[int(query_num)]
+    query_text = read_file(input_file=query_file)
+    sparql = SPARQLWrapper(sparql_url)
+    sparql.setQuery(query_text)
+    sparql.setReturnFormat('csv')
+    try:
+        results = sparql.query().convert()
+        print(results)
+        return results
+    except SPARQLExceptions.QueryBadFormed:
+        print("Wrong SPARQL query")
+
+
 ####################
 # Arguments / run  #
 ####################
@@ -79,6 +97,13 @@ def run(args):
     check_directory(input_dir)
     query_files = list_query_files(input_dir, input_extensions)
     print_queries(query_files)
+    sparql_url = args.sparql_url
+    while True:
+        query_num = input("Provide number of query to run or 'e' to exit: ")
+        if query_num == "e":
+            os._exit(0)
+        else:
+            run_selected_query(query_num, query_files, sparql_url)
 
 
 def main():
@@ -88,14 +113,17 @@ def main():
                                      "files.",
                                      prog="SPARQL runner",
                                      epilog="Konrad Zdeb @ GPL 3-0")
-    parser.add_argument("-i", '--input_dir', help="Input directory with SPARQL query" +
+    parser.add_argument('-i', '--input_dir', help="Input directory with SPARQL query" +
                         "that %(prog)s will use to run queries.",
                         dest='input_dir', type=str, required=True)
-    parser.add_argument('-e', '--extensions', help='File extensions to use' +
+    parser.add_argument('-f', '--file-extensions', help='File extensions to use' +
                         'defaults when searching for query files.',
                         dest='input_extensions', required=False,
                         nargs='+', type=str,
                         default=['.sql', '.txt', '.sparql'])
+    parser.add_argument('-e', '--end-point', type=str, required=False,
+                        help='URL for SPARQL endpoint.', dest='sparql_url',
+                        default='http://statistics.gov.scot/sparql.csv')
     parser.set_defaults(func=run)
     args = parser.parse_args()
     args.func(args)
