@@ -6,6 +6,6 @@ directory.
 
 .. image:: https://asciinema.org/a/0SXxPmxBgoTAtDQGEWDLJnFFm.svg
     :alt: Demo
-    :width: 400
-    :height: 300
+    :width: 640
+    :height: 480
     :target: https://asciinema.org/a/0SXxPmxBgoTAtDQGEWDLJnFFm
